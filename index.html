@@ -407,7 +407,53 @@ function TaskRow({task,isActive,onStart,onComplete,onSkip,onUndo}){
     )
   );
 }
-ReactDOM.render(React.createElement(App),document.getElementById("sg-root"));
+const PW_KEY="sg:auth";
+const CORRECT_PW="20120521";
+
+function LockScreen({onUnlock}){
+  const [input,setInput]=useState("");
+  const [error,setError]=useState(false);
+  const inputRef=useRef(null);
+  useEffect(()=>{if(inputRef.current)inputRef.current.focus();},[]);
+  function attempt(){
+    if(input===CORRECT_PW){localStorage.setItem(PW_KEY,"1");onUnlock();}
+    else{setError(true);setInput("");setTimeout(()=>setError(false),1200);}
+  }
+  return React.createElement("div",{style:{display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",minHeight:"100vh",background:"var(--color-background-tertiary)",fontFamily:"'Hiragino Kaku Gothic ProN','Noto Sans JP',sans-serif"}},
+    React.createElement("div",{style:{fontSize:22,fontWeight:500,color:"var(--color-text-info)",letterSpacing:"0.06em",marginBottom:8}},"しゃにがま"),
+    React.createElement("div",{style:{fontSize:12,color:"var(--color-text-tertiary)",marginBottom:32}},"パスワードを入力してください"),
+    React.createElement("div",{style:{display:"flex",flexDirection:"column",alignItems:"center",gap:12,width:220}},
+      React.createElement("input",{
+        ref:inputRef,
+        type:"password",
+        value:input,
+        onChange:e=>setInput(e.target.value),
+        onKeyDown:e=>e.key==="Enter"&&attempt(),
+        placeholder:"••••••••",
+        style:{
+          width:"100%",textAlign:"center",fontSize:20,letterSpacing:"0.2em",
+          background:"var(--color-background-secondary)",color:"var(--color-text-primary)",
+          border:`1px solid ${error?"#f87171":"var(--color-border-secondary)"}`,
+          borderRadius:8,padding:"10px 14px",outline:"none",
+          transition:"border-color 0.2s",
+        }
+      }),
+      error&&React.createElement("div",{style:{fontSize:12,color:"#f87171"}},"パスワードが違います"),
+      React.createElement("button",{
+        onClick:attempt,
+        style:{width:"100%",background:"var(--color-text-info)",color:"var(--color-background-primary)",border:"none",borderRadius:8,padding:"10px 0",fontSize:14,fontWeight:600,cursor:"pointer"}
+      },"ロック解除")
+    )
+  );
+}
+
+function Root(){
+  const [authed,setAuthed]=useState(()=>localStorage.getItem(PW_KEY)==="1");
+  if(!authed)return React.createElement(LockScreen,{onUnlock:()=>setAuthed(true)});
+  return React.createElement(App);
+}
+
+ReactDOM.render(React.createElement(Root),document.getElementById("sg-root"));
 </script>
 </body>
 </html>
