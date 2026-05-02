@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>しゃにがま</title>
+  <style>
+    :root {
+      --color-background-primary: #0f172a;
+      --color-background-secondary: #1e293b;
+      --color-background-tertiary: #0f172a;
+      --color-background-info: #1e3a5f;
+      --color-background-warning: #2d1b00;
+      --color-text-primary: #f1f5f9;
+      --color-text-secondary: #94a3b8;
+      --color-text-tertiary: #64748b;
+      --color-text-info: #38bdf8;
+      --color-text-warning: #fbbf24;
+      --color-border-tertiary: #334155;
+      --color-border-secondary: #475569;
+      --color-border-info: #0369a1;
+      --color-border-warning: #92400e;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { background: var(--color-background-tertiary); }
+  </style>
+</head>
+<body>
+<script src="https://cdn.jsdelivr.net/npm/react@18/umd/react.production.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/react-dom@18/umd/react-dom.production.min.js"></script>
+<div id="sg-root"></div>
+<script>
+const {useState,useEffect,useRef}=React;
+const BLOCKS=[
+  {id:"4-6",label:"4〜6",title:"起床前",start:4,end:6},
+  {id:"6-8",label:"6〜8",title:"朝の準備",start:6,end:8},
+  {id:"8-10",label:"8〜10",title:"仕事ファースト",start:8,end:10},
+  {id:"10-12",label:"10〜12",title:"仕事の充実時間",start:10,end:12},
+  {id:"12-13",label:"12〜13",title:"お昼休み",start:12,end:13},
+  {id:"13-14",label:"13〜14",title:"午後イチはゆるめに",start:13,end:14},
+  {id:"14-16",label:"14〜16",title:"眠気に耐えて仕事",start:14,end:16},
+  {id:"16-17",label:"16〜17",title:"夕方のもうひとふんばり",start:16,end:17},
+  {id:"17-18",label:"17〜18",title:"夕方の休憩",start:17,end:18},
+  {id:"18-20",label:"18〜20",title:"仕事と家事のボーダー",start:18,end:20},
+  {id:"20-22",label:"20〜22",title:"家事に集中",start:20,end:22},
+  {id:"22-0",label:"22〜0",title:"睡眠タイム",start:22,end:24},
+];
+const ALL=[0,1,2,3,4,5,6];
+const CAT_COLOR={"生活":"#60a5fa","身だしなみ":"#f472b6","掃除":"#34d399","改善強化":"#fbbf24","メンタル":"#a78bfa","体力":"#fb923c","仕事":"#38bdf8","その他":"#94a3b8"};
+const REPEAT_TASKS=[
+  {id:"r001",title:"窓から積雪量を確認する",block:"6-8",days:[1,2,3,4,5],cat:"生活",est:1},
+  {id:"r002",title:"マインドフルネス呼吸する",block:"6-8",days:ALL,cat:"メンタル",est:5},
+  {id:"r003",title:"小",block:"6-8",days:ALL,cat:"生活",est:1},
+  {id:"r004",title:"常温の水を飲む",block:"6-8",days:ALL,cat:"生活",est:1},
+  {id:"r005",title:"シャワー（予洗い）",block:"6-8",days:[1,2,3,4,5,6],cat:"身だしなみ",est:26},
+  {id:"r006",title:"ドライヤーをする",block:"6-8",days:ALL,cat:"身だしなみ",est:2},
+  {id:"r007",title:"オールインワン・日焼け止め塗る",block:"6-8",days:ALL,cat:"身だしなみ",est:6},
+  {id:"r008",title:"デオドラントをする",block:"6-8",days:[1,2,3,4,5,6],cat:"身だしなみ",est:1},
+  {id:"r009",title:"ひげを剃る",block:"6-8",days:[1,2,3,4,5],cat:"身だしなみ",est:3},
+  {id:"r010",title:"ぬるま湯で顔を洗う",block:"6-8",days:ALL,cat:"身だしなみ",est:2},
+  {id:"r011",title:"鏡で自分の顔と向き合う",block:"6-8",days:ALL,cat:"身だしなみ",est:1},
+  {id:"r012",title:"メガネをふく",block:"6-8",days:ALL,cat:"生活",est:1},
+  {id:"r013",title:"腰をストレッチする",block:"6-8",days:ALL,cat:"体力",est:2},
+  {id:"r014",title:"天気予報チェック",block:"6-8",days:ALL,cat:"生活",est:1},
+  {id:"r015",title:"洗濯機かける（枕カバー）07:00",block:"6-8",days:ALL,cat:"生活",est:1},
+  {id:"r016",title:"朝食（p20g）をとる",block:"6-8",days:ALL,cat:"生活",est:7},
+  {id:"r017",title:"薬とQP（1錠）を飲む",block:"6-8",days:ALL,cat:"生活",est:1},
+  {id:"r018",title:"フロスかける",block:"6-8",days:ALL,cat:"身だしなみ",est:3},
+  {id:"r019",title:"歯磨き（舌も）をする",block:"6-8",days:ALL,cat:"身だしなみ",est:6},
+  {id:"r020",title:"食後の口をコンクールでゆすぐ",block:"6-8",days:ALL,cat:"身だしなみ",est:1},
+  {id:"r021",title:"カーテンを開ける",block:"6-8",days:ALL,cat:"掃除",est:1},
+  {id:"r022",title:"ベッドメイキング",block:"6-8",days:ALL,cat:"掃除",est:1},
+  {id:"r023",title:"深呼吸する",block:"6-8",days:ALL,cat:"メンタル",est:10},
+  {id:"r024",title:"洗濯機から物干しに干す",block:"6-8",days:ALL,cat:"生活",est:10},
+  {id:"r025",title:"大",block:"6-8",days:ALL,cat:"生活",est:6},
+  {id:"r026",title:"EufyLiteに乗る（体重計）",block:"6-8",days:ALL,cat:"体力",est:1},
+  {id:"r027",title:"カレンダーで予定確認する",block:"6-8",days:ALL,cat:"生活",est:2},
+  {id:"r028",title:"名言集をみる",block:"6-8",days:ALL,cat:"改善強化",est:1},
+  {id:"r029",title:"not to do listを見る",block:"6-8",days:[1,2,3,4,5],cat:"改善強化",est:1},
+  {id:"r030",title:"疲労度チェック（おめざめ）",block:"6-8",days:ALL,cat:"生活",est:1},
+  {id:"r031",title:"髪をセットする",block:"6-8",days:ALL,cat:"身だしなみ",est:5},
+  {id:"r032",title:"笑顔",block:"6-8",days:ALL,cat:"メンタル",est:1},
+  {id:"r033",title:"燃えるゴミの日 07:40",block:"6-8",days:[1,4],cat:"生活",est:3},
+  {id:"r034",title:"プラスチックごみ 07:40",block:"6-8",days:[3],cat:"生活",est:3},
+  {id:"r035",title:"食器を洗う（朝）",block:"6-8",days:ALL,cat:"掃除",est:10},
+  {id:"r036",title:"リマインダーを見る",block:"6-8",days:ALL,cat:"改善強化",est:1},
+  {id:"r037",title:"前日の未着手タスクを整理する",block:"6-8",days:ALL,cat:"掃除",est:2},
+  {id:"r038",title:"シーツ・タオル類を洗濯する",block:"6-8",days:[0,6],cat:"掃除",est:1},
+  {id:"r039",title:"布団カバーを洗濯する",block:"6-8",days:[6],cat:"掃除",est:2},
+  {id:"r040",title:"水筒にコーヒー＆ルイボスティー 08:00",block:"8-10",days:[1,2,3,4,5],cat:"生活",est:8},
+  {id:"r041",title:"職場への持ち物を確認する 08:12",block:"8-10",days:[1,2,3,4,5],cat:"生活",est:1},
+  {id:"r042",title:"スーツリフレッシャーかける 08:14",block:"8-10",days:[1,2,3,4,5],cat:"身だしなみ",est:1},
+  {id:"r043",title:"スクワット10回x2セット 08:15",block:"8-10",days:ALL,cat:"体力",est:1},
+  {id:"r044",title:"車で通勤する 08:20",block:"8-10",days:[1,2,3,4,5],cat:"生活",est:15},
+  {id:"r045",title:"ハンドクリームでハンドケア",block:"8-10",days:ALL,cat:"身だしなみ",est:1},
+  {id:"r046",title:"リップケア",block:"8-10",days:ALL,cat:"身だしなみ",est:1},
+  {id:"r047",title:"やりたいことを見る",block:"8-10",days:[6],cat:"改善強化",est:1},
+  {id:"r048",title:"笑顔",block:"8-10",days:ALL,cat:"メンタル",est:1},
+  {id:"r049",title:"就業1分前にオンラインにする 08:44",block:"8-10",days:[1,2,3,4,5],cat:"仕事",est:1},
+  {id:"r050",title:"疲労度チェック 08-10",block:"8-10",days:ALL,cat:"生活",est:1},
+  {id:"r051",title:"深呼吸する",block:"8-10",days:ALL,cat:"メンタル",est:1},
+  {id:"r052",title:"ワイシャツにアイロンする",block:"8-10",days:[6],cat:"生活",est:10},
+  {id:"r060",title:"笑顔",block:"10-12",days:ALL,cat:"メンタル",est:1},
+  {id:"r061",title:"疲労度チェック 10-12",block:"10-12",days:ALL,cat:"生活",est:1},
+  {id:"r062",title:"深呼吸する",block:"10-12",days:ALL,cat:"メンタル",est:1},
+  {id:"r063",title:"リーマスらを薬入れに補充",block:"10-12",days:[6],cat:"生活",est:1},
+  {id:"r064",title:"風呂のヘアキャッチャー交換する",block:"10-12",days:[6],cat:"掃除",est:2},
+  {id:"r070",title:"散歩する 12:10",block:"12-13",days:[1,2,3,4,5],cat:"体力",est:25},
+  {id:"r071",title:"公園一周",block:"12-13",days:[1,2,3,4,5],cat:"体力",est:5},
+  {id:"r072",title:"わたしはわたしを肯定する",block:"12-13",days:ALL,cat:"メンタル",est:1},
+  {id:"r073",title:"5分読書する",block:"12-13",days:ALL,cat:"改善強化",est:5},
+  {id:"r074",title:"睡眠と心拍数をアプリでチェックする",block:"12-13",days:ALL,cat:"メンタル",est:1},
+  {id:"r075",title:"おにぎり＆トマトジュース（ゆでたまご）",block:"12-13",days:ALL,cat:"生活",est:10},
+  {id:"r076",title:"昼食後に肩甲骨をストレッチする",block:"12-13",days:[1,2,3,4,5],cat:"体力",est:1},
+  {id:"r077",title:"笑顔",block:"12-13",days:ALL,cat:"メンタル",est:1},
+  {id:"r078",title:"スクワット20回 12:45",block:"12-13",days:ALL,cat:"体力",est:1},
+  {id:"r079",title:"疲労度チェック 12-13",block:"12-13",days:ALL,cat:"生活",est:1},
+  {id:"r080",title:"待受のカレンダー更新",block:"12-13",days:ALL,cat:"生活",est:1},
+  {id:"r081",title:"深呼吸する",block:"12-13",days:ALL,cat:"メンタル",est:1},
+  {id:"r082",title:"読書する",block:"12-13",days:ALL,cat:"改善強化",est:15},
+  {id:"r083",title:"やりたいことを昼休みにやる 12:43",block:"12-13",days:[1,2,3,4,5],cat:"改善強化",est:1},
+  {id:"r084",title:"午後の業務1分前 12:59",block:"12-13",days:[1,2,3,4,5],cat:"仕事",est:1},
+  {id:"r085",title:"承認ができている自分をイメージする",block:"12-13",days:ALL,cat:"メンタル",est:1},
+  {id:"r086",title:"元妻に連絡事項あればメールする",block:"12-13",days:[1,2,3,4,5],cat:"生活",est:1},
+  {id:"r090",title:"疲労度チェック 13-14",block:"13-14",days:ALL,cat:"生活",est:1},
+  {id:"r091",title:"深呼吸する",block:"13-14",days:ALL,cat:"メンタル",est:1},
+  {id:"r092",title:"まゆ毛整える",block:"13-14",days:[6],cat:"身だしなみ",est:10},
+  {id:"r100",title:"おやつ（チーズメイン）15:15",block:"14-16",days:[1,2,3,4,5],cat:"生活",est:1},
+  {id:"r101",title:"深呼吸する",block:"14-16",days:ALL,cat:"メンタル",est:1},
+  {id:"r102",title:"疲労度チェック 14-16",block:"14-16",days:ALL,cat:"生活",est:1},
+  {id:"r103",title:"笑顔",block:"14-16",days:ALL,cat:"メンタル",est:1},
+  {id:"r110",title:"疲労度チェック 16-17",block:"16-17",days:ALL,cat:"生活",est:1},
+  {id:"r111",title:"洗面所掃除",block:"16-17",days:[0],cat:"掃除",est:5},
+  {id:"r112",title:"風呂の排水溝掃除する",block:"16-17",days:ALL,cat:"掃除",est:25},
+  {id:"r113",title:"深呼吸する",block:"16-17",days:ALL,cat:"メンタル",est:1},
+  {id:"r114",title:"笑顔",block:"16-17",days:ALL,cat:"メンタル",est:1},
+  {id:"r120",title:"夕方休憩はきちんと休憩しよう 17:32",block:"17-18",days:[1,2,3,4,5],cat:"改善強化",est:10},
+  {id:"r121",title:"深呼吸する",block:"17-18",days:ALL,cat:"メンタル",est:1},
+  {id:"r122",title:"iPhoneのリマインダの目的をみる",block:"17-18",days:ALL,cat:"改善強化",est:1},
+  {id:"r123",title:"疲労度チェック 17-18",block:"17-18",days:ALL,cat:"生活",est:1},
+  {id:"r124",title:"残業する 17:45",block:"17-18",days:[1,2,3,4,5],cat:"仕事",est:72},
+  {id:"r125",title:"競馬の収支をつける",block:"17-18",days:[0],cat:"その他",est:1},
+  {id:"r126",title:"車にガソリンを入れる",block:"17-18",days:[6],cat:"生活",est:3},
+  {id:"r127",title:"居間のゴミ袋を交換する",block:"17-18",days:[1],cat:"掃除",est:1},
+  {id:"r130",title:"腕立て伏せ10回",block:"18-20",days:ALL,cat:"体力",est:1},
+  {id:"r131",title:"トイレ掃除",block:"18-20",days:ALL,cat:"掃除",est:20},
+  {id:"r132",title:"玄関のものをひとつ捨てる",block:"18-20",days:ALL,cat:"掃除",est:1},
+  {id:"r133",title:"洗濯物をタンスに入れる",block:"18-20",days:ALL,cat:"生活",est:3},
+  {id:"r134",title:"風呂のお湯を入れる",block:"18-20",days:ALL,cat:"生活",est:1},
+  {id:"r135",title:"晩飯をよく噛んで食べる",block:"18-20",days:ALL,cat:"生活",est:15},
+  {id:"r136",title:"疲労度チェック 18-20",block:"18-20",days:ALL,cat:"生活",est:1},
+  {id:"r137",title:"深呼吸する",block:"18-20",days:ALL,cat:"メンタル",est:1},
+  {id:"r138",title:"笑顔",block:"18-20",days:ALL,cat:"メンタル",est:1},
+  {id:"r139",title:"not to do listを見る",block:"18-20",days:[1,2,3,4,5],cat:"改善強化",est:1},
+  {id:"r140",title:"給与明細をクリアファイルに入れる",block:"18-20",days:ALL,cat:"生活",est:1},
+  {id:"r150",title:"5分間掃除する",block:"20-22",days:ALL,cat:"掃除",est:5},
+  {id:"r151",title:"読書する",block:"20-22",days:ALL,cat:"改善強化",est:5},
+  {id:"r152",title:"翌日の予定を作成する 20:45",block:"20-22",days:ALL,cat:"生活",est:2},
+  {id:"r153",title:"teams・Outlookを確認する 20:30",block:"20-22",days:ALL,cat:"仕事",est:1},
+  {id:"r154",title:"デイリーメンテをする",block:"20-22",days:ALL,cat:"改善強化",est:10},
+  {id:"r155",title:"水筒をつけ置き洗いする",block:"20-22",days:[6],cat:"生活",est:1},
+  {id:"r156",title:"風呂に入る",block:"20-22",days:ALL,cat:"身だしなみ",est:30},
+  {id:"r157",title:"深呼吸する",block:"20-22",days:ALL,cat:"メンタル",est:1},
+  {id:"r158",title:"食器を洗う（夜）",block:"20-22",days:ALL,cat:"掃除",est:18},
+  {id:"r159",title:"笑顔",block:"20-22",days:ALL,cat:"メンタル",est:1},
+  {id:"r160",title:"今日も一日紗妃に感謝する",block:"20-22",days:ALL,cat:"メンタル",est:1},
+  {id:"r161",title:"疲労度チェック 20-22",block:"20-22",days:ALL,cat:"生活",est:1},
+  {id:"r162",title:"台所の水切りネット交換する 20:30",block:"20-22",days:[0,3],cat:"生活",est:1},
+  {id:"r163",title:"爪を切る（爪やすり）",block:"20-22",days:[6],cat:"身だしなみ",est:5},
+  {id:"r164",title:"天気予報チェック",block:"20-22",days:ALL,cat:"生活",est:1},
+  {id:"r165",title:"スプレッドシートに家計を記載する 20:30",block:"20-22",days:ALL,cat:"生活",est:3},
+  {id:"r166",title:"クイックルワイパーかける",block:"20-22",days:ALL,cat:"掃除",est:1},
+  {id:"r167",title:"食後のリーマスを飲む 20:05",block:"20-22",days:ALL,cat:"メンタル",est:1},
+  {id:"r168",title:"まゆ毛整える",block:"20-22",days:ALL,cat:"身だしなみ",est:1},
+  {id:"r169",title:"歯磨きをする 21:00",block:"20-22",days:ALL,cat:"身だしなみ",est:5},
+  {id:"r170",title:"週一の浴室掃除",block:"20-22",days:[6],cat:"掃除",est:7},
+  {id:"r171",title:"部屋のお手入れ（掃除機等）",block:"20-22",days:ALL,cat:"掃除",est:5},
+  {id:"r172",title:"シンク周りの掃除",block:"20-22",days:[6],cat:"掃除",est:15},
+  {id:"r180",title:"フロスかける（夜）",block:"22-0",days:ALL,cat:"身だしなみ",est:3},
+  {id:"r181",title:"口をコンクールで洗う",block:"22-0",days:ALL,cat:"身だしなみ",est:1},
+  {id:"r182",title:"寝室に行く 22:25",block:"22-0",days:ALL,cat:"生活",est:1},
+  {id:"r183",title:"たすくまのバックアップを取る",block:"22-0",days:[0],cat:"生活",est:4},
+];
+
+async function loadData(d){try{const v=localStorage.getItem(`sg:${d}`);return v?JSON.parse(v):null;}catch{return null;}}
+async function saveData(d,v){try{localStorage.setItem(`sg:${d}`,JSON.stringify(v));}catch(e){console.error(e);}}
+async function deleteData(d){try{localStorage.removeItem(`sg:${d}`);}catch(e){console.error(e);}}
+function todayStr(){const d=new Date();return`${d.getFullYear()}${String(d.getMonth()+1).padStart(2,"0")}${String(d.getDate()).padStart(2,"0")}`;}
+function getDow(){return new Date().getDay();}
+function curHour(){return new Date().getHours();}
+function timeStr(ms){if(!ms)return"";const d=new Date(ms);return`${String(d.getHours()).padStart(2,"0")}:${String(d.getMinutes()).padStart(2,"0")}:${String(d.getSeconds()).padStart(2,"0")}`;}
+function elapsedStr(startMs){const s=Math.floor((Date.now()-startMs)/1000);if(s<60)return`${s}秒`;const m=Math.floor(s/60);if(m<60)return`${m}分${s%60}秒`;return`${Math.floor(m/60)}時間${m%60}分`;}
+function minToStr(m){if(m<60)return`${m}分`;return`${Math.floor(m/60)}時間${m%60}分`;}
+function estEndTime(rem){const d=new Date(Date.now()+rem*60000);return`${String(d.getHours()).padStart(2,"0")}:${String(d.getMinutes()).padStart(2,"0")}`;}
+function genTasks(dow){return REPEAT_TASKS.filter(t=>t.days.includes(dow)).map(t=>({id:`${todayStr()}_${t.id}`,repeatId:t.id,title:t.title,block:t.block,cat:t.cat,est:t.est,done:false,startTime:null,endTime:null,skipped:false}));}
+function requestNotif(){if("Notification"in window&&Notification.permission==="default")Notification.requestPermission();}
+function sendNotif(t,b){if("Notification"in window&&Notification.permission==="granted"){try{new Notification(t,{body:b});}catch(e){}}}
+
+function App(){
+  const [tasks,setTasks]=useState([]);
+  const [activeId,setActiveId]=useState(null);
+  const [loaded,setLoaded]=useState(false);
+  const [now,setNow]=useState(new Date());
+  const [selBlock,setSelBlock]=useState(null);
+  const [adding,setAdding]=useState(false);
+  const [newTitle,setNewTitle]=useState("");
+  const [newEst,setNewEst]=useState(5);
+  const [popup,setPopup]=useState(null);
+  const [confirmReset,setConfirmReset]=useState(false);
+  const timersRef=useRef({});
+  const dateStr=todayStr();
+  const dow=getDow();
+  const DOW=["日","月","火","水","木","金","土"];
+
+  useEffect(()=>{const t=setInterval(()=>setNow(new Date()),1000);return()=>clearInterval(t);},[]);
+  useEffect(()=>{
+    requestNotif();
+    (async()=>{
+      const saved=await loadData(dateStr);
+      if(saved&&saved.tasks){setTasks(saved.tasks);setActiveId(saved.activeId||null);}
+      else setTasks(genTasks(dow));
+      setLoaded(true);
+    })();
+  },[]);
+  useEffect(()=>{if(!loaded)return;const h=curHour();const cur=BLOCKS.find(b=>h>=b.start&&h<b.end);if(cur&&!selBlock)setSelBlock(cur.id);},[loaded]);
+  useEffect(()=>{if(!loaded)return;saveData(dateStr,{tasks,activeId});},[tasks,activeId,loaded]);
+
+  async function resetToday(){
+    await deleteData(dateStr);
+    Object.values(timersRef.current).forEach(t=>clearTimeout(t));
+    timersRef.current={};
+    setActiveId(null);
+    setPopup(null);
+    setTasks(genTasks(dow));
+    setConfirmReset(false);
+  }
+
+  function scheduleTimer(taskId,title,estMin){
+    if(timersRef.current[taskId])clearTimeout(timersRef.current[taskId]);
+    timersRef.current[taskId]=setTimeout(()=>{setPopup({taskId,title});sendNotif("しゃにがま",`「${title}」は完了しましたか？`);},estMin*60*1000);
+  }
+  function clearTimer(taskId){if(timersRef.current[taskId]){clearTimeout(timersRef.current[taskId]);delete timersRef.current[taskId];}}
+  function startTask(taskId){
+    const n=Date.now();const task=tasks.find(t=>t.id===taskId);
+    if(activeId&&activeId!==taskId){clearTimer(activeId);setTasks(prev=>prev.map(t=>t.id===activeId?{...t,done:true,endTime:n}:t));}
+    setTasks(prev=>prev.map(t=>t.id===taskId?{...t,startTime:n,endTime:null,done:false}:t));
+    setActiveId(taskId);
+    if(task)scheduleTimer(taskId,task.title,task.est);
+  }
+  function completeTask(taskId){
+    const n=Date.now();clearTimer(taskId);
+    setTasks(prev=>prev.map(t=>t.id===taskId?{...t,done:true,endTime:t.endTime||n}:t));
+    if(activeId===taskId)setActiveId(null);
+    if(popup&&popup.taskId===taskId)setPopup(null);
+  }
+  function skipTask(taskId){
+    clearTimer(taskId);
+    setTasks(prev=>prev.map(t=>t.id===taskId?{...t,skipped:true,done:true}:t));
+    if(activeId===taskId)setActiveId(null);
+    if(popup&&popup.taskId===taskId)setPopup(null);
+  }
+  function undoTask(taskId){clearTimer(taskId);setTasks(prev=>prev.map(t=>t.id===taskId?{...t,done:false,skipped:false,startTime:null,endTime:null}:t));}
+  function addTask(){
+    if(!newTitle.trim()||!selBlock)return;
+    setTasks(prev=>[...prev,{id:`${dateStr}_c_${Date.now()}`,repeatId:null,title:newTitle.trim(),block:selBlock,cat:"その他",est:newEst,done:false,startTime:null,endTime:null,skipped:false}]);
+    setNewTitle("");setNewEst(5);setAdding(false);
+  }
+
+  const remainMin=tasks.filter(t=>!t.done&&!t.skipped).reduce((s,t)=>s+t.est,0);
+  const blockRemainMin=bid=>tasks.filter(t=>t.block===bid&&!t.done&&!t.skipped).reduce((s,t)=>s+t.est,0);
+  const blockTasks=bid=>tasks.filter(t=>t.block===bid&&!t.skipped);
+  const doneCount=tasks.filter(t=>t.done&&!t.skipped).length;
+  const totalCount=tasks.filter(t=>!t.skipped).length;
+  const progress=totalCount>0?Math.round(doneCount/totalCount*100):0;
+  const activeTask=tasks.find(t=>t.id===activeId);
+  const h=now.getHours();
+  const curBlock=BLOCKS.find(b=>h>=b.start&&h<b.end);
+  const circ=2*Math.PI*24;
+
+  if(!loaded)return React.createElement("div",{style:{display:"flex",alignItems:"center",justifyContent:"center",height:200,color:"var(--color-text-secondary)",fontSize:14}},"起動中...");
+
+  return React.createElement("div",{style:{background:"var(--color-background-tertiary)",minHeight:400,fontFamily:"'Hiragino Kaku Gothic ProN','Noto Sans JP',sans-serif",color:"var(--color-text-primary)"}},
+    popup&&React.createElement("div",{style:{position:"sticky",top:0,zIndex:200,background:"#7c3aed",padding:"10px 16px",display:"flex",alignItems:"center",gap:10}},
+      React.createElement("div",{style:{flex:1,fontSize:13,color:"#fff",fontWeight:500}},`「${popup.title}」は完了しましたか？`),
+      React.createElement("button",{onClick:()=>completeTask(popup.taskId),style:{background:"#fff",color:"#7c3aed",border:"none",borderRadius:6,padding:"4px 12px",fontSize:12,fontWeight:700,cursor:"pointer",marginRight:6}},"完了"),
+      React.createElement("button",{onClick:()=>setPopup(null),style:{background:"transparent",color:"#ddd",border:"1px solid #aaa",borderRadius:6,padding:"4px 10px",fontSize:12,cursor:"pointer"}},"後で")
+    ),
+    // ヘッダー
+    React.createElement("div",{style:{display:"flex",justifyContent:"space-between",alignItems:"center",padding:"14px 16px 10px",borderBottom:"0.5px solid var(--color-border-tertiary)",background:"var(--color-background-primary)",position:"sticky",top:popup?42:0,zIndex:100}},
+      React.createElement("div",null,
+        React.createElement("div",{style:{display:"flex",alignItems:"center",gap:10}},
+          React.createElement("div",{style:{fontSize:20,fontWeight:500,color:"var(--color-text-info)",letterSpacing:"0.04em"}},"しゃにがま"),
+          React.createElement("button",{
+            onClick:()=>setConfirmReset(true),
+            style:{background:"transparent",border:"0.5px solid var(--color-border-tertiary)",color:"var(--color-text-tertiary)",borderRadius:6,padding:"2px 8px",fontSize:10,cursor:"pointer"}
+          },"リセット")
+        ),
+        React.createElement("div",{style:{fontSize:11,color:"var(--color-text-tertiary)",marginTop:2}},
+          `${now.getFullYear()}/${now.getMonth()+1}/${now.getDate()}（${DOW[dow]}）　${String(now.getHours()).padStart(2,"0")}:${String(now.getMinutes()).padStart(2,"0")}:${String(now.getSeconds()).padStart(2,"0")}`)
+      ),
+      React.createElement("div",{style:{display:"flex",alignItems:"center",gap:10}},
+        remainMin>0
+          ?React.createElement("div",{style:{textAlign:"right"}},
+            React.createElement("div",{style:{fontSize:12,fontWeight:500,color:"var(--color-text-primary)"}},`残 ${minToStr(remainMin)}`),
+            React.createElement("div",{style:{fontSize:11,color:"var(--color-text-tertiary)",marginTop:1}},`→ ${estEndTime(remainMin)} 終了予定`)
+          )
+          :React.createElement("div",{style:{fontSize:12,color:"#34d399",fontWeight:500}},"全完了！"),
+        React.createElement("svg",{width:52,height:52,viewBox:"0 0 56 56"},
+          React.createElement("circle",{cx:28,cy:28,r:24,fill:"none",stroke:"var(--color-border-tertiary)",strokeWidth:4}),
+          React.createElement("circle",{cx:28,cy:28,r:24,fill:"none",stroke:"#38bdf8",strokeWidth:4,strokeDasharray:circ,strokeDashoffset:circ*(1-progress/100),strokeLinecap:"round",transform:"rotate(-90 28 28)",style:{transition:"stroke-dashoffset 0.5s"}}),
+          React.createElement("text",{x:28,y:33,textAnchor:"middle",fill:"var(--color-text-primary)",fontSize:13,fontWeight:500},`${progress}%`)
+        )
+      )
+    ),
+    // リセット確認
+    confirmReset&&React.createElement("div",{style:{background:"var(--color-background-warning)",borderBottom:"0.5px solid var(--color-border-warning)",padding:"10px 16px",display:"flex",alignItems:"center",gap:10}},
+      React.createElement("div",{style:{flex:1,fontSize:13,color:"var(--color-text-warning)"},"fontWeight":500},"今日のデータをリセットしますか？（完了済みも含めて全て初期化されます）"),
+      React.createElement("button",{onClick:resetToday,style:{background:"var(--color-text-warning)",color:"#fff",border:"none",borderRadius:6,padding:"4px 12px",fontSize:12,fontWeight:700,cursor:"pointer",marginRight:6}},"リセット"),
+      React.createElement("button",{onClick:()=>setConfirmReset(false),style:{background:"transparent",color:"var(--color-text-tertiary)",border:"0.5px solid var(--color-border-tertiary)",borderRadius:6,padding:"4px 10px",fontSize:12,cursor:"pointer"}},"キャンセル")
+    ),
+    // アクティブバー
+    activeTask&&React.createElement("div",{style:{display:"flex",alignItems:"center",gap:12,background:"var(--color-background-info)",padding:"10px 16px",borderBottom:"0.5px solid var(--color-border-info)"}},
+      React.createElement("div",{style:{fontSize:12,color:"var(--color-text-info)"}},"▶"),
+      React.createElement("div",{style:{flex:1}},
+        React.createElement("div",{style:{fontSize:13,fontWeight:500,color:"var(--color-text-info)"}},activeTask.title),
+        React.createElement("div",{style:{fontSize:11,color:"var(--color-text-secondary)",marginTop:2}},`${timeStr(activeTask.startTime)} 〜 ${elapsedStr(activeTask.startTime)} 経過　見積${activeTask.est}分`)
+      ),
+      React.createElement("button",{onClick:()=>completeTask(activeTask.id),style:{background:"var(--color-text-info)",color:"var(--color-background-primary)",border:"none",borderRadius:6,padding:"4px 12px",fontSize:12,fontWeight:500,cursor:"pointer"}},"完了")
+    ),
+    // ブロックナビ
+    React.createElement("div",{style:{display:"flex",overflowX:"auto",gap:4,padding:"8px 12px",borderBottom:"0.5px solid var(--color-border-tertiary)",scrollbarWidth:"none"}},
+      BLOCKS.map(b=>{
+        const bt=blockTasks(b.id);
+        const bd=bt.filter(t=>t.done).length;
+        const bRem=blockRemainMin(b.id);
+        const isCur=curBlock?.id===b.id;
+        const isSel=selBlock===b.id;
+        return React.createElement("button",{key:b.id,onClick:()=>setSelBlock(b.id),style:{flexShrink:0,background:isSel?"var(--color-background-info)":"var(--color-background-secondary)",border:`0.5px solid ${isCur?"#fbbf24":isSel?"var(--color-border-info)":"var(--color-border-tertiary)"}`,borderRadius:8,padding:"6px 8px",cursor:"pointer",textAlign:"center",minWidth:58}},
+          React.createElement("div",{style:{fontSize:10,color:isSel?"var(--color-text-info)":"var(--color-text-secondary)"}},b.label),
+          React.createElement("div",{style:{fontSize:12,fontWeight:500,color:"var(--color-text-primary)",marginTop:2}},`${bd}/${bt.length}`),
+          bRem>0&&React.createElement("div",{style:{fontSize:10,color:"var(--color-text-tertiary)",marginTop:1}},`残${bRem}分`)
+        );
+      })
+    ),
+    // ブロック詳細
+    selBlock&&(()=>{
+      const block=BLOCKS.find(b=>b.id===selBlock);
+      const bt=blockTasks(selBlock);
+      const sk=tasks.filter(t=>t.block===selBlock&&t.skipped);
+      return React.createElement("div",{style:{padding:"0 12px 20px"}},
+        React.createElement("div",{style:{display:"flex",justifyContent:"space-between",alignItems:"center",padding:"12px 4px 8px"}},
+          React.createElement("div",null,
+            React.createElement("div",{style:{fontSize:15,fontWeight:500}},`${block.label}　${block.title}`),
+            React.createElement("div",{style:{fontSize:11,color:"var(--color-text-tertiary)",marginTop:2}},`${bt.filter(t=>t.done).length}/${bt.length} 完了`)
+          ),
+          React.createElement("button",{onClick:()=>setAdding(true),style:{background:"transparent",border:"0.5px solid var(--color-border-secondary)",color:"var(--color-text-secondary)",borderRadius:6,padding:"5px 10px",fontSize:11,cursor:"pointer"}},"+　追加")
+        ),
+        adding&&React.createElement("div",{style:{background:"var(--color-background-secondary)",borderRadius:8,padding:12,marginBottom:8,border:"0.5px solid var(--color-border-tertiary)"}},
+          React.createElement("input",{style:{width:"100%",background:"var(--color-background-primary)",border:"0.5px solid var(--color-border-secondary)",color:"var(--color-text-primary)",borderRadius:6,padding:"6px 10px",fontSize:13,outline:"none",boxSizing:"border-box",marginBottom:8},placeholder:"タスク名",value:newTitle,onChange:e=>setNewTitle(e.target.value),onKeyDown:e=>e.key==="Enter"&&addTask(),autoFocus:true}),
+          React.createElement("div",{style:{display:"flex",gap:8,alignItems:"center"}},
+            React.createElement("input",{type:"number",min:1,max:180,value:newEst,style:{width:60,background:"var(--color-background-primary)",border:"0.5px solid var(--color-border-secondary)",color:"var(--color-text-primary)",borderRadius:6,padding:"4px 8px",fontSize:13,outline:"none"},onChange:e=>setNewEst(Number(e.target.value))}),
+            React.createElement("span",{style:{fontSize:12,color:"var(--color-text-secondary)"}},"分"),
+            React.createElement("button",{onClick:addTask,style:{background:"var(--color-text-info)",color:"var(--color-background-primary)",border:"none",borderRadius:6,padding:"4px 14px",fontSize:12,fontWeight:500,cursor:"pointer"}},"追加"),
+            React.createElement("button",{onClick:()=>setAdding(false),style:{background:"transparent",color:"var(--color-text-tertiary)",border:"0.5px solid var(--color-border-tertiary)",borderRadius:6,padding:"4px 10px",fontSize:12,cursor:"pointer"}},"キャンセル")
+          )
+        ),
+        bt.length===0&&React.createElement("div",{style:{color:"var(--color-text-tertiary)",fontSize:13,textAlign:"center",padding:"24px 0"}},"今日このブロックにタスクはありません"),
+        bt.map(task=>React.createElement(TaskRow,{key:task.id,task,isActive:task.id===activeId,onStart:()=>startTask(task.id),onComplete:()=>completeTask(task.id),onSkip:()=>skipTask(task.id),onUndo:()=>undoTask(task.id)})),
+        sk.length>0&&React.createElement("div",{style:{marginTop:12,paddingTop:8,borderTop:"0.5px solid var(--color-border-tertiary)"}},
+          React.createElement("div",{style:{fontSize:11,color:"var(--color-text-tertiary)",marginBottom:4}},`スキップ (${sk.length})`),
+          sk.map(task=>React.createElement("div",{key:task.id,style:{display:"flex",justifyContent:"space-between",alignItems:"center",padding:"3px 0"}},
+            React.createElement("span",{style:{fontSize:11,color:"var(--color-text-tertiary)",textDecoration:"line-through"}},task.title),
+            React.createElement("button",{onClick:()=>undoTask(task.id),style:{background:"transparent",color:"var(--color-text-tertiary)",border:"none",fontSize:13,cursor:"pointer",padding:"2px 6px"}},"戻す")
+          ))
+        )
+      );
+    })()
+  );
+}
+
+function TaskRow({task,isActive,onStart,onComplete,onSkip,onUndo}){
+  const cc=CAT_COLOR[task.cat]||CAT_COLOR["その他"];
+  if(task.done&&!task.skipped){
+    return React.createElement("div",{style:{display:"flex",alignItems:"center",gap:10,background:"var(--color-background-secondary)",borderRadius:8,padding:"8px 12px",marginBottom:4,border:"0.5px solid var(--color-border-tertiary)",opacity:0.55}},
+      React.createElement("div",{style:{width:7,height:7,borderRadius:"50%",flexShrink:0,background:cc}}),
+      React.createElement("div",{style:{flex:1,minWidth:0}},
+        React.createElement("span",{style:{fontSize:12,color:"var(--color-text-secondary)",textDecoration:"line-through",wordBreak:"break-all"}},task.title),
+        task.startTime&&React.createElement("span",{style:{fontSize:10,color:"var(--color-text-tertiary)",marginLeft:8}},`${timeStr(task.startTime)}〜${timeStr(task.endTime)}`)
+      ),
+      React.createElement("button",{onClick:onUndo,style:{background:"transparent",color:"var(--color-text-tertiary)",border:"none",fontSize:13,cursor:"pointer",padding:"2px 6px"}},"↩")
+    );
+  }
+  return React.createElement("div",{style:{display:"flex",alignItems:"center",gap:10,background:isActive?"var(--color-background-info)":"var(--color-background-secondary)",borderRadius:8,padding:"10px 12px",marginBottom:6,border:`0.5px solid ${isActive?"var(--color-border-info)":"var(--color-border-tertiary)"}`}},
+    React.createElement("div",{style:{width:7,height:7,borderRadius:"50%",flexShrink:0,background:cc}}),
+    React.createElement("div",{style:{flex:1,minWidth:0}},
+      React.createElement("div",{style:{fontSize:13,color:"var(--color-text-primary)",lineHeight:1.4,wordBreak:"break-all"}},task.title),
+      React.createElement("div",{style:{display:"flex",gap:6,marginTop:4,flexWrap:"wrap"}},
+        React.createElement("span",{style:{fontSize:10,color:"var(--color-text-tertiary)",background:"var(--color-background-tertiary)",borderRadius:4,padding:"1px 5px"}},task.cat),
+        React.createElement("span",{style:{fontSize:10,color:"var(--color-text-tertiary)",background:"var(--color-background-tertiary)",borderRadius:4,padding:"1px 5px"}},`${task.est}分`),
+        isActive&&task.startTime&&React.createElement("span",{style:{fontSize:10,color:"var(--color-text-info)",background:"var(--color-background-info)",borderRadius:4,padding:"1px 5px"}},`実行中 ${timeStr(task.startTime)}〜`)
+      )
+    ),
+    React.createElement("div",{style:{display:"flex",gap:6,flexShrink:0}},
+      !isActive&&React.createElement("button",{onClick:onStart,style:{background:"var(--color-text-info)",color:"var(--color-background-primary)",border:"none",borderRadius:6,padding:"5px 10px",fontSize:13,cursor:"pointer",fontWeight:500}},"▶"),
+      isActive&&React.createElement("button",{onClick:onComplete,style:{background:"#34d399",color:"#0f172a",border:"none",borderRadius:6,padding:"5px 10px",fontSize:13,cursor:"pointer",fontWeight:500}},"✓"),
+      React.createElement("button",{onClick:onSkip,style:{background:"transparent",color:"var(--color-text-tertiary)",border:"0.5px solid var(--color-border-tertiary)",borderRadius:6,padding:"5px 8px",fontSize:13,cursor:"pointer"}},"—")
+    )
+  );
+}
+ReactDOM.render(React.createElement(App),document.getElementById("sg-root"));
+</script>
+</body>
+</html>
