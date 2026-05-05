@@ -1,0 +1,15 @@
+scoring:
+  # 前走着順の重み（1着=満点、着順が下がるほど減点）
+  weight_last_finish: 20.0
+
+  # 距離変化の重み（前走から±200m以内で加点）
+  weight_distance: 10.0
+
+  # 騎手の地方交流重賞実績の重み（勝率×0.6 + 3着内率×0.4）
+  weight_jockey: 15.0
+
+  # 斤量の重み（56kg基準、軽いほど有利）
+  weight_handicap: 8.0
+
+  # 同競馬場実績の重み（同競馬場勝率）
+  weight_same_track: 12.0

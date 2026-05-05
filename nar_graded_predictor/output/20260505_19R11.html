@@ -1,0 +1,698 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>かしわ記念 予想 | NAR重賞予想</title>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: "Hiragino Kaku Gothic ProN", "Meiryo", "YuGothic", sans-serif;
+  background: #1a1a2e;
+  color: #eee;
+  font-size: 14px;
+}
+.page {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 16px;
+}
+
+/* ---- Header ---- */
+.race-header {
+  background: linear-gradient(135deg, #0d0d1a 0%, #16213e 60%, #0f3460 100%);
+  border: 2px solid #e94560;
+  border-radius: 10px;
+  padding: 20px 24px;
+  margin-bottom: 12px;
+  text-align: center;
+}
+.grade-badge {
+  display: inline-block;
+  padding: 3px 12px;
+  border-radius: 20px;
+  font-weight: bold;
+  font-size: 13px;
+  margin-bottom: 8px;
+  letter-spacing: 1px;
+}
+.grade-jpn1, .grade-g1 { background: #b8860b; color: #fff; border: 1px solid #ffd700; }
+.grade-jpn2, .grade-g2 { background: #888; color: #fff; border: 1px solid #ccc; }
+.grade-jpn3, .grade-g3 { background: #8b4513; color: #fff; border: 1px solid #cd853f; }
+.grade-badge:not([class*="grade-jpn"]):not([class*="grade-g"]) { background: #444; color: #ccc; }
+
+.race-title {
+  font-size: 28px;
+  font-weight: bold;
+  color: #fff;
+  letter-spacing: 2px;
+  margin-bottom: 10px;
+}
+.race-meta {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 16px;
+  color: #aac4ff;
+  font-size: 13px;
+}
+.race-meta span { display: flex; align-items: center; gap: 4px; }
+
+/* ---- Legend ---- */
+.legend {
+  display: flex;
+  gap: 16px;
+  padding: 8px 16px;
+  background: #16213e;
+  border-radius: 6px;
+  margin-bottom: 12px;
+  flex-wrap: wrap;
+}
+.legend-item { display: flex; align-items: center; gap: 4px; font-size: 13px; color: #ccc; }
+.mark { font-size: 18px; font-weight: bold; line-height: 1; }
+
+/* ---- Table ---- */
+.table-wrap { overflow-x: auto; margin-bottom: 24px; }
+.race-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: #0d1b2a;
+  border-radius: 8px;
+  overflow: hidden;
+  min-width: 820px;
+}
+.race-table thead tr {
+  background: #0f3460;
+  color: #aac4ff;
+  font-size: 12px;
+  text-align: center;
+}
+.race-table th {
+  padding: 8px 6px;
+  border-bottom: 2px solid #e94560;
+  white-space: nowrap;
+}
+.race-table tbody tr {
+  border-bottom: 1px solid #1e3a5a;
+  transition: background 0.15s;
+}
+.race-table tbody tr:hover { background: #1a3050; }
+.race-table tbody tr.row-top {
+  background: linear-gradient(90deg, #2a0a0a 0%, #1a0808 100%);
+  border-left: 3px solid #e94560;
+}
+.race-table tbody tr.row-noted {
+  background: #0f1e30;
+  border-left: 3px solid #3a7bd5;
+}
+.race-table td {
+  padding: 7px 6px;
+  vertical-align: middle;
+  text-align: center;
+}
+
+/* Columns */
+.col-rank  { width: 32px; font-size: 20px; }
+.col-frame { width: 36px; }
+.col-no    { width: 36px; color: #aaa; }
+.col-name  { text-align: left; padding-left: 8px; }
+.col-info  { width: 48px; }
+.col-weight { width: 48px; }
+.col-jockey { width: 80px; white-space: nowrap; }
+.col-trainer { width: 80px; white-space: nowrap; font-size: 12px; color: #aaa; }
+.col-odds  { width: 70px; }
+.col-past  { width: 110px; }
+.col-score { width: 130px; }
+
+.horse-name { font-weight: bold; font-size: 15px; color: #fff; }
+.frame-badge {
+  display: inline-block;
+  width: 26px; height: 26px;
+  line-height: 26px;
+  text-align: center;
+  border-radius: 4px;
+  font-size: 13px;
+}
+.popularity { font-size: 11px; color: #aaa; }
+
+/* Score bar */
+.score-bar-wrap {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.score-bar {
+  height: 8px;
+  border-radius: 4px;
+  flex-shrink: 0;
+  max-width: 80px;
+}
+.score-num { font-size: 13px; font-weight: bold; color: #fff; white-space: nowrap; }
+
+/* Past pos badges */
+.past-pos {
+  display: inline-block;
+  width: 20px; height: 20px;
+  line-height: 18px;
+  text-align: center;
+  border: 1.5px solid #888;
+  border-radius: 3px;
+  font-size: 11px;
+  font-weight: bold;
+  color: #888;
+  margin: 0 1px;
+}
+.past-unk { border-color: #444; color: #444; }
+.no-data { color: #555; font-size: 12px; }
+
+/* ---- Detail Section ---- */
+.detail-section h2 {
+  font-size: 16px;
+  color: #aac4ff;
+  border-bottom: 1px solid #0f3460;
+  padding-bottom: 6px;
+  margin-bottom: 14px;
+}
+.detail-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 12px;
+  margin-bottom: 24px;
+}
+.detail-card {
+  background: #0d1b2a;
+  border: 1px solid #1e3a5a;
+  border-radius: 8px;
+  overflow: hidden;
+}
+.detail-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  background: #0f3460;
+}
+.detail-no { color: #aaa; font-size: 12px; }
+.detail-mark { font-size: 20px; }
+.detail-name { font-weight: bold; font-size: 15px; color: #fff; flex: 1; }
+.detail-score { font-size: 13px; color: #ffd700; font-weight: bold; white-space: nowrap; }
+.detail-body { padding: 10px 12px; }
+.detail-info {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 10px;
+  font-size: 12px;
+  color: #aaa;
+}
+.past-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 11px;
+}
+.past-table th {
+  background: #0a1628;
+  color: #778ca3;
+  padding: 3px 5px;
+  text-align: center;
+  border-bottom: 1px solid #1e3a5a;
+}
+.past-table td {
+  padding: 3px 5px;
+  text-align: center;
+  border-bottom: 1px solid #111d2e;
+  color: #ccc;
+}
+.past-table tr:last-child td { border-bottom: none; }
+
+/* ---- Footer ---- */
+.page-footer {
+  text-align: center;
+  color: #555;
+  font-size: 11px;
+  padding: 16px 0;
+  border-top: 1px solid #1e3a5a;
+}
+</style>
+</head>
+<body>
+<div class="page">
+
+  <header class="race-header">
+    <div class="grade-badge grade-jpn1">Jpn1</div>
+    <h1 class="race-title">かしわ記念</h1>
+    <div class="race-meta">
+      <span>📅 2026年5月5日（火）</span>
+      <span>🏟 船橋</span>
+      <span>📏 左ダート 1600m</span>
+      <span>🕐 20:05 発走</span>
+    </div>
+  </header>
+
+  <div class="legend">
+    <span class="legend-item"><span class="mark" style="color:#CC0000">◎</span> 本命</span>
+    <span class="legend-item"><span class="mark" style="color:#0055CC">○</span> 対抗</span>
+    <span class="legend-item"><span class="mark" style="color:#007700">▲</span> 単穴</span>
+    <span class="legend-item"><span class="mark" style="color:#888800">△</span> 連下</span>
+    <span class="legend-item"><span class="mark" style="color:#666666">×</span> 注意</span>
+  </div>
+
+  <div class="table-wrap">
+  <table class="race-table">
+    <thead>
+      <tr>
+        <th class="col-rank">印</th>
+        <th class="col-frame">枠</th>
+        <th class="col-no">馬番</th>
+        <th class="col-name">馬名</th>
+        <th class="col-info">性齢</th>
+        <th class="col-weight">斤量</th>
+        <th class="col-jockey">騎手</th>
+        <th class="col-trainer">調教師</th>
+        <th class="col-odds">オッズ</th>
+        <th class="col-past">近走成績</th>
+        <th class="col-score">スコア</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr class="row-top">
+        <td class="col-rank"><span class="mark" style="color:#CC0000">◎</span></td>
+        <td class="col-frame"><span class="frame-badge" style="background:#000000;color:#FFFFFF;font-weight:bold;">2</span></td>
+        <td class="col-no">2</td>
+        <td class="col-name"><span class="horse-name">コスタノヴァ</span></td>
+        <td class="col-info">牡6</td>
+        <td class="col-weight">4.0</td>
+        <td class="col-jockey">レーン</td>
+        <td class="col-trainer">木村哲</td>
+        <td class="col-odds">4.6<br><span class="popularity">(2人気)</span></td>
+        <td class="col-past"><span title="2026/02/22 Ｊ東京 さきたま杯JpnＩ 1600m"><span class="past-pos" style="border-color:#CC2200;color:#CC2200">1</span></span><span title="2025/11/15 Ｊ東京 かしわ記念JpnＩ 1600m"><span class="past-pos" style="border-color:#0055BB;color:#0055BB">2</span></span><span title="2025/06/25 浦和  1400m"><span class="past-pos" style="border-color:#888888;color:#888888">11</span></span><span title="2025/05/05 船橋ナ  1600m"><span class="past-pos" style="border-color:#007700;color:#007700">3</span></span><span title="2025/02/23 Ｊ東京  1600m"><span class="past-pos" style="border-color:#CC2200;color:#CC2200">1</span></span></td>
+        <td class="col-score"><div class="score-bar-wrap"><div class="score-bar" style="width:59%;background:#0055BB"></div><span class="score-num">59.6</span></div></td>
+      </tr>
+      <tr class="row-noted">
+        <td class="col-rank"><span class="mark" style="color:#0055CC">○</span></td>
+        <td class="col-frame"><span class="frame-badge" style="background:#FFDD00;color:#222222;font-weight:bold;">5</span></td>
+        <td class="col-no">6</td>
+        <td class="col-name"><span class="horse-name">ジョージテソーロ</span></td>
+        <td class="col-info">牡5</td>
+        <td class="col-weight">2.1</td>
+        <td class="col-jockey">落合玄</td>
+        <td class="col-trainer">小久智</td>
+        <td class="col-odds">－<br><span class="popularity">(7人気)</span></td>
+        <td class="col-past"><span title="2026/03/31 船橋ナ 京成盃グランドマイラーズ４上オ 1600m"><span class="past-pos" style="border-color:#CC2200;color:#CC2200">1</span></span><span title="2026/03/10 大井 フジノウェーブ記念４上オープン 1400m"><span class="past-pos" style="border-color:#0055BB;color:#0055BB">2</span></span><span title="2026/02/26 浦和 梅花賞４上オープン 1400m"><span class="past-pos" style="border-color:#CC2200;color:#CC2200">1</span></span><span title="2025/12/21 Ｊ中京  1400m"><span class="past-pos" style="border-color:#888888;color:#888888">13</span></span><span title="2025/10/26 Ｊ東京  1400m"><span class="past-pos" style="border-color:#888888;color:#888888">15</span></span></td>
+        <td class="col-score"><div class="score-bar-wrap"><div class="score-bar" style="width:58%;background:#0055BB"></div><span class="score-num">58.9</span></div></td>
+      </tr>
+      <tr class="row-noted">
+        <td class="col-rank"><span class="mark" style="color:#007700">▲</span></td>
+        <td class="col-frame"><span class="frame-badge" style="background:#FF8800;color:#FFFFFF;font-weight:bold;">7</span></td>
+        <td class="col-no">10</td>
+        <td class="col-name"><span class="horse-name">ウィルソンテソーロ</span></td>
+        <td class="col-info">牡7</td>
+        <td class="col-weight">2.2</td>
+        <td class="col-jockey">川田将</td>
+        <td class="col-trainer">高木登</td>
+        <td class="col-odds">7.3<br><span class="popularity">(3人気)</span></td>
+        <td class="col-past"><span title="2026/02/22 Ｊ東京 ＪＢＣクラシックJpnＩ 1600m"><span class="past-pos" style="border-color:#0055BB;color:#0055BB">2</span></span><span title="2025/12/07 Ｊ中京 マイルチャンピオンシップJpnＩ 1800m"><span class="past-pos" style="border-color:#0055BB;color:#0055BB">2</span></span><span title="2025/11/03 船橋ナ 帝王賞JpnＩ 1800m"><span class="past-pos" style="border-color:#888888;color:#888888">5</span></span><span title="2025/10/13 盛岡  1600m"><span class="past-pos" style="border-color:#CC2200;color:#CC2200">1</span></span><span title="2025/07/02 大井ナ  2000m"><span class="past-pos" style="border-color:#888888;color:#888888">5</span></span></td>
+        <td class="col-score"><div class="score-bar-wrap"><div class="score-bar" style="width:55%;background:#0055BB"></div><span class="score-num">55.5</span></div></td>
+      </tr>
+      <tr>
+        <td class="col-rank"><span class="mark" style="color:#888800">△</span></td>
+        <td class="col-frame"><span class="frame-badge" style="background:#3355CC;color:#FFFFFF;font-weight:bold;">4</span></td>
+        <td class="col-no">4</td>
+        <td class="col-name"><span class="horse-name">リコースパロー</span></td>
+        <td class="col-info">牡4</td>
+        <td class="col-weight">2.0</td>
+        <td class="col-jockey">澤田龍</td>
+        <td class="col-trainer">荒山勝</td>
+        <td class="col-odds">－<br><span class="popularity">(9人気)</span></td>
+        <td class="col-past"><span title="2026/03/31 船橋ナ 京成盃グランドマイラーズ４上オ 1600m"><span class="past-pos" style="border-color:#007700;color:#007700">3</span></span><span title="2026/01/15 大井 初富士賞Ａ２二Ｂ１二選抜特別 1400m"><span class="past-pos" style="border-color:#CC2200;color:#CC2200">1</span></span><span title="2025/12/24 浦和 クリスマスイヴ特別Ａ２下 1500m"><span class="past-pos" style="border-color:#CC2200;color:#CC2200">1</span></span><span title="2025/03/26 大井ナ 京浜盃JpnII 1700m"><span class="past-pos" style="border-color:#0055BB;color:#0055BB">2</span></span><span title="2025/02/19 大井 雲取賞JpnIII 1800m"><span class="past-pos" style="border-color:#888888;color:#888888">6</span></span></td>
+        <td class="col-score"><div class="score-bar-wrap"><div class="score-bar" style="width:51%;background:#0055BB"></div><span class="score-num">51.6</span></div></td>
+      </tr>
+      <tr>
+        <td class="col-rank"><span class="mark" style="color:#666666">×</span></td>
+        <td class="col-frame"><span class="frame-badge" style="background:#EEEEEE;color:#222222;font-weight:bold;">－</span></td>
+        <td class="col-no">7</td>
+        <td class="col-name"><span class="horse-name">ベアバッキューン</span></td>
+        <td class="col-info">牡4</td>
+        <td class="col-weight">4.1</td>
+        <td class="col-jockey">野畑凌</td>
+        <td class="col-trainer">鈴木義</td>
+        <td class="col-odds">－<br><span class="popularity">(8人気)</span></td>
+        <td class="col-past"><span title="2026/04/09 川崎ナ 幸オープンＡ１下４歳上 1500m"><span class="past-pos" style="border-color:#CC2200;color:#CC2200">1</span></span><span title="2026/02/26 浦和 梅花賞４上オープン 1400m"><span class="past-pos" style="border-color:#888888;color:#888888">5</span></span><span title="2025/08/26 川崎ナ スパーキングサマーカップ３歳上 1600m"><span class="past-pos" style="border-color:#888888;color:#888888">7</span></span><span title="2025/06/04 船橋ナ 若潮スプリント３歳オープン 1200m"><span class="past-pos" style="border-color:#CC2200;color:#CC2200">1</span></span><span title="2024/10/09 川崎ナ 鎌倉記念【地方交流】２歳オープ 1600m"><span class="past-pos" style="border-color:#CC2200;color:#CC2200">1</span></span></td>
+        <td class="col-score"><div class="score-bar-wrap"><div class="score-bar" style="width:50%;background:#0055BB"></div><span class="score-num">50.8</span></div></td>
+      </tr>
+      <tr>
+        <td class="col-rank"></td>
+        <td class="col-frame"><span class="frame-badge" style="background:#FF69B4;color:#222222;font-weight:bold;">8</span></td>
+        <td class="col-no">12</td>
+        <td class="col-name"><span class="horse-name">リュードマン</span></td>
+        <td class="col-info">牡9</td>
+        <td class="col-weight">5.3</td>
+        <td class="col-jockey">篠谷葵</td>
+        <td class="col-trainer">矢内博</td>
+        <td class="col-odds">－<br><span class="popularity">(13人気)</span></td>
+        <td class="col-past"><span title="2026/04/03 船橋ナ 春和景明特別Ｂ１二Ｂ２一 1600m"><span class="past-pos" style="border-color:#888888;color:#888888">5</span></span><span title="2026/03/13 船橋ナ ３月２２日はばんえい記念Ｂ１二 1800m"><span class="past-pos" style="border-color:#888888;color:#888888">5</span></span><span title="2026/02/10 船橋ナ ミモザ特別Ｂ１二 1600m"><span class="past-pos" style="border-color:#0055BB;color:#0055BB">2</span></span><span title="2026/01/23 船橋ナ 鯛ノ浦特別Ａ２Ｂ１一 1800m"><span class="past-pos" style="border-color:#888888;color:#888888">6</span></span><span title="2026/01/02 川崎 スパーキングオールスターＡ２下 2100m"><span class="past-pos" style="border-color:#888888;color:#888888">5</span></span></td>
+        <td class="col-score"><div class="score-bar-wrap"><div class="score-bar" style="width:44%;background:#0055BB"></div><span class="score-num">44.8</span></div></td>
+      </tr>
+      <tr>
+        <td class="col-rank"></td>
+        <td class="col-frame"><span class="frame-badge" style="background:#EEEEEE;color:#222222;font-weight:bold;">－</span></td>
+        <td class="col-no">5</td>
+        <td class="col-name"><span class="horse-name">ガバナビリティー</span></td>
+        <td class="col-info">牡4</td>
+        <td class="col-weight">1.2</td>
+        <td class="col-jockey">笠野雄</td>
+        <td class="col-trainer">佐藤太</td>
+        <td class="col-odds">－<br><span class="popularity">(10人気)</span></td>
+        <td class="col-past"><span title="2026/04/02 船橋ナ アンデルセン特別Ａ２一 1800m"><span class="past-pos" style="border-color:#CC2200;color:#CC2200">1</span></span><span title="2026/03/10 船橋ナ ブラッドストーン賞Ａ２Ｂ１一 1700m"><span class="past-pos" style="border-color:#888888;color:#888888">6</span></span><span title="2026/02/12 船橋ナ Ｊ交 ハートビートレイＡ２Ｂ１ 1600m"><span class="past-pos" style="border-color:#888888;color:#888888">12</span></span><span title="2025/12/23 浦和 ゴールドカップ３上オープン 1400m"><span class="past-pos" style="border-color:#888888;color:#888888">13</span></span><span title="2025/12/09 船橋ナ ハートビートカップ３歳オープン 1800m"><span class="past-pos" style="border-color:#007700;color:#007700">3</span></span></td>
+        <td class="col-score"><div class="score-bar-wrap"><div class="score-bar" style="width:43%;background:#0055BB"></div><span class="score-num">43.1</span></div></td>
+      </tr>
+      <tr>
+        <td class="col-rank"></td>
+        <td class="col-frame"><span class="frame-badge" style="background:#009933;color:#FFFFFF;font-weight:bold;">6</span></td>
+        <td class="col-no">8</td>
+        <td class="col-name"><span class="horse-name">ミッキーファイト</span></td>
+        <td class="col-info">牡5</td>
+        <td class="col-weight">5.0</td>
+        <td class="col-jockey">ルメー</td>
+        <td class="col-trainer">田中博</td>
+        <td class="col-odds">1.7<br><span class="popularity">(1人気)</span></td>
+        <td class="col-past"><span title="2025/12/29 大井 東京大賞典ＧＩ 2000m"><span class="past-pos" style="border-color:#0055BB;color:#0055BB">2</span></span><span title="2025/11/03 船橋ナ ＪＢＣクラシックJpnＩ 1800m"><span class="past-pos" style="border-color:#CC2200;color:#CC2200">1</span></span><span title="2025/07/02 大井ナ 帝王賞JpnＩ 2000m"><span class="past-pos" style="border-color:#CC2200;color:#CC2200">1</span></span><span title="2025/04/19 Ｊ阪神  1800m"><span class="past-pos" style="border-color:#CC2200;color:#CC2200">1</span></span><span title="2025/02/23 Ｊ東京  1600m"><span class="past-pos" style="border-color:#007700;color:#007700">3</span></span></td>
+        <td class="col-score"><div class="score-bar-wrap"><div class="score-bar" style="width:39%;background:#558800"></div><span class="score-num">39.7</span></div></td>
+      </tr>
+      <tr>
+        <td class="col-rank"></td>
+        <td class="col-frame"><span class="frame-badge" style="background:#EEEEEE;color:#222222;font-weight:bold;">－</span></td>
+        <td class="col-no">13</td>
+        <td class="col-name"><span class="horse-name">ナチュラルライズ</span></td>
+        <td class="col-info">牡4</td>
+        <td class="col-weight">2.0</td>
+        <td class="col-jockey">横山武</td>
+        <td class="col-trainer">伊藤圭</td>
+        <td class="col-odds">－<br><span class="popularity">(5人気)</span></td>
+        <td class="col-past"><span title="2026/02/22 Ｊ東京 東京大賞典ＧＩ 1600m"><span class="past-pos" style="border-color:#888888;color:#888888">7</span></span><span title="2025/12/29 大井 ジャパンダートクラシックJpnＩ 2000m"><span class="past-pos" style="border-color:#888888;color:#888888">11</span></span><span title="2025/10/08 大井ナ 東京ダービーJpnＩ 2000m"><span class="past-pos" style="border-color:#0055BB;color:#0055BB">2</span></span><span title="2025/06/11 大井ナ 羽田盃JpnＩ 2000m"><span class="past-pos" style="border-color:#CC2200;color:#CC2200">1</span></span><span title="2025/04/29 大井ナ  1800m"><span class="past-pos" style="border-color:#CC2200;color:#CC2200">1</span></span></td>
+        <td class="col-score"><div class="score-bar-wrap"><div class="score-bar" style="width:37%;background:#558800"></div><span class="score-num">37.9</span></div></td>
+      </tr>
+      <tr>
+        <td class="col-rank"></td>
+        <td class="col-frame"><span class="frame-badge" style="background:#CC0000;color:#FFFFFF;font-weight:bold;">3</span></td>
+        <td class="col-no">3</td>
+        <td class="col-name"><span class="horse-name">ロードフォンス</span></td>
+        <td class="col-info">牡6</td>
+        <td class="col-weight">4.2</td>
+        <td class="col-jockey">横山和</td>
+        <td class="col-trainer">安田翔</td>
+        <td class="col-odds">－<br><span class="popularity">(6人気)</span></td>
+        <td class="col-past"><span title="2026/03/24 高知 黒船賞JpnIII 1400m"><span class="past-pos" style="border-color:#888888;color:#888888">4</span></span><span title="2026/02/01 Ｊ東京 かしわ記念JpnＩ 1400m"><span class="past-pos" style="border-color:#CC2200;color:#CC2200">1</span></span><span title="2025/11/15 Ｊ東京  1600m"><span class="past-pos" style="border-color:#888888;color:#888888">5</span></span><span title="2025/10/04 Ｊ東京  1600m"><span class="past-pos" style="border-color:#888888;color:#888888">4</span></span><span title="2025/05/05 船橋ナ  1600m"><span class="past-pos" style="border-color:#888888;color:#888888">4</span></span></td>
+        <td class="col-score"><div class="score-bar-wrap"><div class="score-bar" style="width:32%;background:#558800"></div><span class="score-num">32.8</span></div></td>
+      </tr>
+      <tr>
+        <td class="col-rank"></td>
+        <td class="col-frame"><span class="frame-badge" style="background:#EEEEEE;color:#222222;font-weight:bold;">－</span></td>
+        <td class="col-no">9</td>
+        <td class="col-name"><span class="horse-name">オーマイグッネス</span></td>
+        <td class="col-info">牡6</td>
+        <td class="col-weight">3.2</td>
+        <td class="col-jockey">藤本現</td>
+        <td class="col-trainer">山田信</td>
+        <td class="col-odds">－<br><span class="popularity">(11人気)</span></td>
+        <td class="col-past"><span title="2026/03/31 船橋ナ 京成盃グランドマイラーズ４上オ 1600m"><span class="past-pos" style="border-color:#888888;color:#888888">13</span></span><span title="2026/02/12 船橋ナ Ｊ交 ハートビートレイＡ２Ｂ１ 1600m"><span class="past-pos" style="border-color:#888888;color:#888888">5</span></span><span title="2026/01/23 船橋ナ 鯛ノ浦特別Ａ２Ｂ１一 1800m"><span class="past-pos" style="border-color:#007700;color:#007700">3</span></span><span title="2025/12/09 船橋ナ 好機到来特別Ａ２Ｂ１一 1700m"><span class="past-pos" style="border-color:#CC2200;color:#CC2200">1</span></span><span title="2025/11/04 船橋ナ 大福山特別Ａ２Ｂ１一 1800m"><span class="past-pos" style="border-color:#0055BB;color:#0055BB">2</span></span></td>
+        <td class="col-score"><div class="score-bar-wrap"><div class="score-bar" style="width:27%;background:#558800"></div><span class="score-num">27.7</span></div></td>
+      </tr>
+      <tr>
+        <td class="col-rank"></td>
+        <td class="col-frame"><span class="frame-badge" style="background:#EEEEEE;color:#222222;font-weight:bold;">－</span></td>
+        <td class="col-no">11</td>
+        <td class="col-name"><span class="horse-name">グランデマーレ</span></td>
+        <td class="col-info">牡9</td>
+        <td class="col-weight">2.0</td>
+        <td class="col-jockey">岡村健</td>
+        <td class="col-trainer">山本学</td>
+        <td class="col-odds">－<br><span class="popularity">(12人気)</span></td>
+        <td class="col-past"><span title="2026/03/31 船橋ナ 京成盃グランドマイラーズ４上オ 1600m"><span class="past-pos" style="border-color:#888888;color:#888888">14</span></span><span title="2026/03/11 船橋ナ ダイオライト記念JpnII 2400m"><span class="past-pos" style="border-color:#888888;color:#888888">11</span></span><span title="2026/02/17 大井 品川オープン４上特別 1800m"><span class="past-pos" style="border-color:#888888;color:#888888">12</span></span><span title="2026/01/28 大井 金盃４上オープン重賞 2600m"><span class="past-pos" style="border-color:#888888;color:#888888">13</span></span><span title="2026/01/14 大井 ’２６ウインタースプリント４上 1200m"><span class="past-pos" style="border-color:#888888;color:#888888">9</span></span></td>
+        <td class="col-score"><div class="score-bar-wrap"><div class="score-bar" style="width:27%;background:#558800"></div><span class="score-num">27.7</span></div></td>
+      </tr>
+      <tr>
+        <td class="col-rank"></td>
+        <td class="col-frame"><span class="frame-badge" style="background:#FFFFFF;color:#222222;font-weight:bold;">1</span></td>
+        <td class="col-no">1</td>
+        <td class="col-name"><span class="horse-name">シャマル</span></td>
+        <td class="col-info">牡8</td>
+        <td class="col-weight">2.2</td>
+        <td class="col-jockey">川須栄</td>
+        <td class="col-trainer">松下武</td>
+        <td class="col-odds">9.3<br><span class="popularity">(4人気)</span></td>
+        <td class="col-past"><span title="2026/03/24 高知 黒船賞JpnIII 1400m"><span class="past-pos" style="border-color:#888888;color:#888888">10</span></span><span title="2026/02/23 名古屋 かきつばた記念JpnIII 1500m"><span class="past-pos" style="border-color:#888888;color:#888888">7</span></span><span title="2025/11/03 船橋ナ ＪＢＣクラシックJpnＩ 1800m"><span class="past-pos" style="border-color:#888888;color:#888888">9</span></span><span title="2025/10/13 盛岡 マイルチャンピオンシップJpnＩ 1600m"><span class="past-pos" style="border-color:#888888;color:#888888">6</span></span><span title="2025/06/25 浦和 さきたま杯JpnＩ 1400m"><span class="past-pos" style="border-color:#CC2200;color:#CC2200">1</span></span></td>
+        <td class="col-score"><div class="score-bar-wrap"><div class="score-bar" style="width:12%;background:#558800"></div><span class="score-num">12.3</span></div></td>
+      </tr>
+    </tbody>
+  </table>
+  </div>
+
+  <section class="detail-section">
+    <h2>詳細データ</h2>
+    <div class="detail-grid">
+      <div class="detail-card">
+        <div class="detail-header">
+          <span class="frame-badge" style="background:#000000;color:#FFFFFF;font-weight:bold;">2</span>
+          <span class="detail-no">2番</span>
+          <span class="mark detail-mark" style="color:#CC0000">◎</span>
+          <span class="detail-name">コスタノヴァ</span>
+          <span class="detail-score">スコア 59.6</span>
+        </div>
+        <div class="detail-body">
+          <div class="detail-info">
+            <span>性齢: 牡6</span>
+            <span>斤量: 4.0kg</span>
+            <span>騎手: レーン</span>
+            <span>調教師: 木村哲</span>
+            <span>オッズ: 4.6倍 (2人気)</span>
+          </div>
+          <table class="past-table"><thead><tr><th>着順</th><th>日付</th><th>競馬場</th><th>レース名</th><th>距離</th></tr></thead><tbody><tr><td><span class="past-pos" style="border-color:#CC2200;color:#CC2200">1</span></td><td>2026/02/22</td><td>Ｊ東京</td><td>さきたま杯JpnＩ</td><td>1600m</td></tr><tr><td><span class="past-pos" style="border-color:#0055BB;color:#0055BB">2</span></td><td>2025/11/15</td><td>Ｊ東京</td><td>かしわ記念JpnＩ</td><td>1600m</td></tr><tr><td><span class="past-pos" style="border-color:#888888;color:#888888">11</span></td><td>2025/06/25</td><td>浦和</td><td></td><td>1400m</td></tr><tr><td><span class="past-pos" style="border-color:#007700;color:#007700">3</span></td><td>2025/05/05</td><td>船橋ナ</td><td></td><td>1600m</td></tr><tr><td><span class="past-pos" style="border-color:#CC2200;color:#CC2200">1</span></td><td>2025/02/23</td><td>Ｊ東京</td><td></td><td>1600m</td></tr></tbody></table>
+        </div>
+      </div>      <div class="detail-card">
+        <div class="detail-header">
+          <span class="frame-badge" style="background:#FFDD00;color:#222222;font-weight:bold;">5</span>
+          <span class="detail-no">6番</span>
+          <span class="mark detail-mark" style="color:#0055CC">○</span>
+          <span class="detail-name">ジョージテソーロ</span>
+          <span class="detail-score">スコア 58.9</span>
+        </div>
+        <div class="detail-body">
+          <div class="detail-info">
+            <span>性齢: 牡5</span>
+            <span>斤量: 2.1kg</span>
+            <span>騎手: 落合玄</span>
+            <span>調教師: 小久智</span>
+            
+          </div>
+          <table class="past-table"><thead><tr><th>着順</th><th>日付</th><th>競馬場</th><th>レース名</th><th>距離</th></tr></thead><tbody><tr><td><span class="past-pos" style="border-color:#CC2200;color:#CC2200">1</span></td><td>2026/03/31</td><td>船橋ナ</td><td>京成盃グランドマイラーズ４上オ</td><td>1600m</td></tr><tr><td><span class="past-pos" style="border-color:#0055BB;color:#0055BB">2</span></td><td>2026/03/10</td><td>大井</td><td>フジノウェーブ記念４上オープン</td><td>1400m</td></tr><tr><td><span class="past-pos" style="border-color:#CC2200;color:#CC2200">1</span></td><td>2026/02/26</td><td>浦和</td><td>梅花賞４上オープン</td><td>1400m</td></tr><tr><td><span class="past-pos" style="border-color:#888888;color:#888888">13</span></td><td>2025/12/21</td><td>Ｊ中京</td><td></td><td>1400m</td></tr><tr><td><span class="past-pos" style="border-color:#888888;color:#888888">15</span></td><td>2025/10/26</td><td>Ｊ東京</td><td></td><td>1400m</td></tr></tbody></table>
+        </div>
+      </div>      <div class="detail-card">
+        <div class="detail-header">
+          <span class="frame-badge" style="background:#FF8800;color:#FFFFFF;font-weight:bold;">7</span>
+          <span class="detail-no">10番</span>
+          <span class="mark detail-mark" style="color:#007700">▲</span>
+          <span class="detail-name">ウィルソンテソーロ</span>
+          <span class="detail-score">スコア 55.5</span>
+        </div>
+        <div class="detail-body">
+          <div class="detail-info">
+            <span>性齢: 牡7</span>
+            <span>斤量: 2.2kg</span>
+            <span>騎手: 川田将</span>
+            <span>調教師: 高木登</span>
+            <span>オッズ: 7.3倍 (3人気)</span>
+          </div>
+          <table class="past-table"><thead><tr><th>着順</th><th>日付</th><th>競馬場</th><th>レース名</th><th>距離</th></tr></thead><tbody><tr><td><span class="past-pos" style="border-color:#0055BB;color:#0055BB">2</span></td><td>2026/02/22</td><td>Ｊ東京</td><td>ＪＢＣクラシックJpnＩ</td><td>1600m</td></tr><tr><td><span class="past-pos" style="border-color:#0055BB;color:#0055BB">2</span></td><td>2025/12/07</td><td>Ｊ中京</td><td>マイルチャンピオンシップJpnＩ</td><td>1800m</td></tr><tr><td><span class="past-pos" style="border-color:#888888;color:#888888">5</span></td><td>2025/11/03</td><td>船橋ナ</td><td>帝王賞JpnＩ</td><td>1800m</td></tr><tr><td><span class="past-pos" style="border-color:#CC2200;color:#CC2200">1</span></td><td>2025/10/13</td><td>盛岡</td><td></td><td>1600m</td></tr><tr><td><span class="past-pos" style="border-color:#888888;color:#888888">5</span></td><td>2025/07/02</td><td>大井ナ</td><td></td><td>2000m</td></tr></tbody></table>
+        </div>
+      </div>      <div class="detail-card">
+        <div class="detail-header">
+          <span class="frame-badge" style="background:#3355CC;color:#FFFFFF;font-weight:bold;">4</span>
+          <span class="detail-no">4番</span>
+          <span class="mark detail-mark" style="color:#888800">△</span>
+          <span class="detail-name">リコースパロー</span>
+          <span class="detail-score">スコア 51.6</span>
+        </div>
+        <div class="detail-body">
+          <div class="detail-info">
+            <span>性齢: 牡4</span>
+            <span>斤量: 2.0kg</span>
+            <span>騎手: 澤田龍</span>
+            <span>調教師: 荒山勝</span>
+            
+          </div>
+          <table class="past-table"><thead><tr><th>着順</th><th>日付</th><th>競馬場</th><th>レース名</th><th>距離</th></tr></thead><tbody><tr><td><span class="past-pos" style="border-color:#007700;color:#007700">3</span></td><td>2026/03/31</td><td>船橋ナ</td><td>京成盃グランドマイラーズ４上オ</td><td>1600m</td></tr><tr><td><span class="past-pos" style="border-color:#CC2200;color:#CC2200">1</span></td><td>2026/01/15</td><td>大井</td><td>初富士賞Ａ２二Ｂ１二選抜特別</td><td>1400m</td></tr><tr><td><span class="past-pos" style="border-color:#CC2200;color:#CC2200">1</span></td><td>2025/12/24</td><td>浦和</td><td>クリスマスイヴ特別Ａ２下</td><td>1500m</td></tr><tr><td><span class="past-pos" style="border-color:#0055BB;color:#0055BB">2</span></td><td>2025/03/26</td><td>大井ナ</td><td>京浜盃JpnII</td><td>1700m</td></tr><tr><td><span class="past-pos" style="border-color:#888888;color:#888888">6</span></td><td>2025/02/19</td><td>大井</td><td>雲取賞JpnIII</td><td>1800m</td></tr></tbody></table>
+        </div>
+      </div>      <div class="detail-card">
+        <div class="detail-header">
+          <span class="frame-badge" style="background:#EEEEEE;color:#222222;font-weight:bold;">0</span>
+          <span class="detail-no">7番</span>
+          <span class="mark detail-mark" style="color:#666666">×</span>
+          <span class="detail-name">ベアバッキューン</span>
+          <span class="detail-score">スコア 50.8</span>
+        </div>
+        <div class="detail-body">
+          <div class="detail-info">
+            <span>性齢: 牡4</span>
+            <span>斤量: 4.1kg</span>
+            <span>騎手: 野畑凌</span>
+            <span>調教師: 鈴木義</span>
+            
+          </div>
+          <table class="past-table"><thead><tr><th>着順</th><th>日付</th><th>競馬場</th><th>レース名</th><th>距離</th></tr></thead><tbody><tr><td><span class="past-pos" style="border-color:#CC2200;color:#CC2200">1</span></td><td>2026/04/09</td><td>川崎ナ</td><td>幸オープンＡ１下４歳上</td><td>1500m</td></tr><tr><td><span class="past-pos" style="border-color:#888888;color:#888888">5</span></td><td>2026/02/26</td><td>浦和</td><td>梅花賞４上オープン</td><td>1400m</td></tr><tr><td><span class="past-pos" style="border-color:#888888;color:#888888">7</span></td><td>2025/08/26</td><td>川崎ナ</td><td>スパーキングサマーカップ３歳上</td><td>1600m</td></tr><tr><td><span class="past-pos" style="border-color:#CC2200;color:#CC2200">1</span></td><td>2025/06/04</td><td>船橋ナ</td><td>若潮スプリント３歳オープン</td><td>1200m</td></tr><tr><td><span class="past-pos" style="border-color:#CC2200;color:#CC2200">1</span></td><td>2024/10/09</td><td>川崎ナ</td><td>鎌倉記念【地方交流】２歳オープ</td><td>1600m</td></tr></tbody></table>
+        </div>
+      </div>      <div class="detail-card">
+        <div class="detail-header">
+          <span class="frame-badge" style="background:#FF69B4;color:#222222;font-weight:bold;">8</span>
+          <span class="detail-no">12番</span>
+          <span class="mark detail-mark" style="color:#333333"></span>
+          <span class="detail-name">リュードマン</span>
+          <span class="detail-score">スコア 44.8</span>
+        </div>
+        <div class="detail-body">
+          <div class="detail-info">
+            <span>性齢: 牡9</span>
+            <span>斤量: 5.3kg</span>
+            <span>騎手: 篠谷葵</span>
+            <span>調教師: 矢内博</span>
+            
+          </div>
+          <table class="past-table"><thead><tr><th>着順</th><th>日付</th><th>競馬場</th><th>レース名</th><th>距離</th></tr></thead><tbody><tr><td><span class="past-pos" style="border-color:#888888;color:#888888">5</span></td><td>2026/04/03</td><td>船橋ナ</td><td>春和景明特別Ｂ１二Ｂ２一</td><td>1600m</td></tr><tr><td><span class="past-pos" style="border-color:#888888;color:#888888">5</span></td><td>2026/03/13</td><td>船橋ナ</td><td>３月２２日はばんえい記念Ｂ１二</td><td>1800m</td></tr><tr><td><span class="past-pos" style="border-color:#0055BB;color:#0055BB">2</span></td><td>2026/02/10</td><td>船橋ナ</td><td>ミモザ特別Ｂ１二</td><td>1600m</td></tr><tr><td><span class="past-pos" style="border-color:#888888;color:#888888">6</span></td><td>2026/01/23</td><td>船橋ナ</td><td>鯛ノ浦特別Ａ２Ｂ１一</td><td>1800m</td></tr><tr><td><span class="past-pos" style="border-color:#888888;color:#888888">5</span></td><td>2026/01/02</td><td>川崎</td><td>スパーキングオールスターＡ２下</td><td>2100m</td></tr></tbody></table>
+        </div>
+      </div>      <div class="detail-card">
+        <div class="detail-header">
+          <span class="frame-badge" style="background:#EEEEEE;color:#222222;font-weight:bold;">0</span>
+          <span class="detail-no">5番</span>
+          <span class="mark detail-mark" style="color:#333333"></span>
+          <span class="detail-name">ガバナビリティー</span>
+          <span class="detail-score">スコア 43.1</span>
+        </div>
+        <div class="detail-body">
+          <div class="detail-info">
+            <span>性齢: 牡4</span>
+            <span>斤量: 1.2kg</span>
+            <span>騎手: 笠野雄</span>
+            <span>調教師: 佐藤太</span>
+            
+          </div>
+          <table class="past-table"><thead><tr><th>着順</th><th>日付</th><th>競馬場</th><th>レース名</th><th>距離</th></tr></thead><tbody><tr><td><span class="past-pos" style="border-color:#CC2200;color:#CC2200">1</span></td><td>2026/04/02</td><td>船橋ナ</td><td>アンデルセン特別Ａ２一</td><td>1800m</td></tr><tr><td><span class="past-pos" style="border-color:#888888;color:#888888">6</span></td><td>2026/03/10</td><td>船橋ナ</td><td>ブラッドストーン賞Ａ２Ｂ１一</td><td>1700m</td></tr><tr><td><span class="past-pos" style="border-color:#888888;color:#888888">12</span></td><td>2026/02/12</td><td>船橋ナ</td><td>Ｊ交 ハートビートレイＡ２Ｂ１</td><td>1600m</td></tr><tr><td><span class="past-pos" style="border-color:#888888;color:#888888">13</span></td><td>2025/12/23</td><td>浦和</td><td>ゴールドカップ３上オープン</td><td>1400m</td></tr><tr><td><span class="past-pos" style="border-color:#007700;color:#007700">3</span></td><td>2025/12/09</td><td>船橋ナ</td><td>ハートビートカップ３歳オープン</td><td>1800m</td></tr></tbody></table>
+        </div>
+      </div>      <div class="detail-card">
+        <div class="detail-header">
+          <span class="frame-badge" style="background:#009933;color:#FFFFFF;font-weight:bold;">6</span>
+          <span class="detail-no">8番</span>
+          <span class="mark detail-mark" style="color:#333333"></span>
+          <span class="detail-name">ミッキーファイト</span>
+          <span class="detail-score">スコア 39.7</span>
+        </div>
+        <div class="detail-body">
+          <div class="detail-info">
+            <span>性齢: 牡5</span>
+            <span>斤量: 5.0kg</span>
+            <span>騎手: ルメー</span>
+            <span>調教師: 田中博</span>
+            <span>オッズ: 1.7倍 (1人気)</span>
+          </div>
+          <table class="past-table"><thead><tr><th>着順</th><th>日付</th><th>競馬場</th><th>レース名</th><th>距離</th></tr></thead><tbody><tr><td><span class="past-pos" style="border-color:#0055BB;color:#0055BB">2</span></td><td>2025/12/29</td><td>大井</td><td>東京大賞典ＧＩ</td><td>2000m</td></tr><tr><td><span class="past-pos" style="border-color:#CC2200;color:#CC2200">1</span></td><td>2025/11/03</td><td>船橋ナ</td><td>ＪＢＣクラシックJpnＩ</td><td>1800m</td></tr><tr><td><span class="past-pos" style="border-color:#CC2200;color:#CC2200">1</span></td><td>2025/07/02</td><td>大井ナ</td><td>帝王賞JpnＩ</td><td>2000m</td></tr><tr><td><span class="past-pos" style="border-color:#CC2200;color:#CC2200">1</span></td><td>2025/04/19</td><td>Ｊ阪神</td><td></td><td>1800m</td></tr><tr><td><span class="past-pos" style="border-color:#007700;color:#007700">3</span></td><td>2025/02/23</td><td>Ｊ東京</td><td></td><td>1600m</td></tr></tbody></table>
+        </div>
+      </div>      <div class="detail-card">
+        <div class="detail-header">
+          <span class="frame-badge" style="background:#EEEEEE;color:#222222;font-weight:bold;">0</span>
+          <span class="detail-no">13番</span>
+          <span class="mark detail-mark" style="color:#333333"></span>
+          <span class="detail-name">ナチュラルライズ</span>
+          <span class="detail-score">スコア 37.9</span>
+        </div>
+        <div class="detail-body">
+          <div class="detail-info">
+            <span>性齢: 牡4</span>
+            <span>斤量: 2.0kg</span>
+            <span>騎手: 横山武</span>
+            <span>調教師: 伊藤圭</span>
+            
+          </div>
+          <table class="past-table"><thead><tr><th>着順</th><th>日付</th><th>競馬場</th><th>レース名</th><th>距離</th></tr></thead><tbody><tr><td><span class="past-pos" style="border-color:#888888;color:#888888">7</span></td><td>2026/02/22</td><td>Ｊ東京</td><td>東京大賞典ＧＩ</td><td>1600m</td></tr><tr><td><span class="past-pos" style="border-color:#888888;color:#888888">11</span></td><td>2025/12/29</td><td>大井</td><td>ジャパンダートクラシックJpnＩ</td><td>2000m</td></tr><tr><td><span class="past-pos" style="border-color:#0055BB;color:#0055BB">2</span></td><td>2025/10/08</td><td>大井ナ</td><td>東京ダービーJpnＩ</td><td>2000m</td></tr><tr><td><span class="past-pos" style="border-color:#CC2200;color:#CC2200">1</span></td><td>2025/06/11</td><td>大井ナ</td><td>羽田盃JpnＩ</td><td>2000m</td></tr><tr><td><span class="past-pos" style="border-color:#CC2200;color:#CC2200">1</span></td><td>2025/04/29</td><td>大井ナ</td><td></td><td>1800m</td></tr></tbody></table>
+        </div>
+      </div>      <div class="detail-card">
+        <div class="detail-header">
+          <span class="frame-badge" style="background:#CC0000;color:#FFFFFF;font-weight:bold;">3</span>
+          <span class="detail-no">3番</span>
+          <span class="mark detail-mark" style="color:#333333"></span>
+          <span class="detail-name">ロードフォンス</span>
+          <span class="detail-score">スコア 32.8</span>
+        </div>
+        <div class="detail-body">
+          <div class="detail-info">
+            <span>性齢: 牡6</span>
+            <span>斤量: 4.2kg</span>
+            <span>騎手: 横山和</span>
+            <span>調教師: 安田翔</span>
+            
+          </div>
+          <table class="past-table"><thead><tr><th>着順</th><th>日付</th><th>競馬場</th><th>レース名</th><th>距離</th></tr></thead><tbody><tr><td><span class="past-pos" style="border-color:#888888;color:#888888">4</span></td><td>2026/03/24</td><td>高知</td><td>黒船賞JpnIII</td><td>1400m</td></tr><tr><td><span class="past-pos" style="border-color:#CC2200;color:#CC2200">1</span></td><td>2026/02/01</td><td>Ｊ東京</td><td>かしわ記念JpnＩ</td><td>1400m</td></tr><tr><td><span class="past-pos" style="border-color:#888888;color:#888888">5</span></td><td>2025/11/15</td><td>Ｊ東京</td><td></td><td>1600m</td></tr><tr><td><span class="past-pos" style="border-color:#888888;color:#888888">4</span></td><td>2025/10/04</td><td>Ｊ東京</td><td></td><td>1600m</td></tr><tr><td><span class="past-pos" style="border-color:#888888;color:#888888">4</span></td><td>2025/05/05</td><td>船橋ナ</td><td></td><td>1600m</td></tr></tbody></table>
+        </div>
+      </div>      <div class="detail-card">
+        <div class="detail-header">
+          <span class="frame-badge" style="background:#EEEEEE;color:#222222;font-weight:bold;">0</span>
+          <span class="detail-no">9番</span>
+          <span class="mark detail-mark" style="color:#333333"></span>
+          <span class="detail-name">オーマイグッネス</span>
+          <span class="detail-score">スコア 27.7</span>
+        </div>
+        <div class="detail-body">
+          <div class="detail-info">
+            <span>性齢: 牡6</span>
+            <span>斤量: 3.2kg</span>
+            <span>騎手: 藤本現</span>
+            <span>調教師: 山田信</span>
+            
+          </div>
+          <table class="past-table"><thead><tr><th>着順</th><th>日付</th><th>競馬場</th><th>レース名</th><th>距離</th></tr></thead><tbody><tr><td><span class="past-pos" style="border-color:#888888;color:#888888">13</span></td><td>2026/03/31</td><td>船橋ナ</td><td>京成盃グランドマイラーズ４上オ</td><td>1600m</td></tr><tr><td><span class="past-pos" style="border-color:#888888;color:#888888">5</span></td><td>2026/02/12</td><td>船橋ナ</td><td>Ｊ交 ハートビートレイＡ２Ｂ１</td><td>1600m</td></tr><tr><td><span class="past-pos" style="border-color:#007700;color:#007700">3</span></td><td>2026/01/23</td><td>船橋ナ</td><td>鯛ノ浦特別Ａ２Ｂ１一</td><td>1800m</td></tr><tr><td><span class="past-pos" style="border-color:#CC2200;color:#CC2200">1</span></td><td>2025/12/09</td><td>船橋ナ</td><td>好機到来特別Ａ２Ｂ１一</td><td>1700m</td></tr><tr><td><span class="past-pos" style="border-color:#0055BB;color:#0055BB">2</span></td><td>2025/11/04</td><td>船橋ナ</td><td>大福山特別Ａ２Ｂ１一</td><td>1800m</td></tr></tbody></table>
+        </div>
+      </div>      <div class="detail-card">
+        <div class="detail-header">
+          <span class="frame-badge" style="background:#EEEEEE;color:#222222;font-weight:bold;">0</span>
+          <span class="detail-no">11番</span>
+          <span class="mark detail-mark" style="color:#333333"></span>
+          <span class="detail-name">グランデマーレ</span>
+          <span class="detail-score">スコア 27.7</span>
+        </div>
+        <div class="detail-body">
+          <div class="detail-info">
+            <span>性齢: 牡9</span>
+            <span>斤量: 2.0kg</span>
+            <span>騎手: 岡村健</span>
+            <span>調教師: 山本学</span>
+            
+          </div>
+          <table class="past-table"><thead><tr><th>着順</th><th>日付</th><th>競馬場</th><th>レース名</th><th>距離</th></tr></thead><tbody><tr><td><span class="past-pos" style="border-color:#888888;color:#888888">14</span></td><td>2026/03/31</td><td>船橋ナ</td><td>京成盃グランドマイラーズ４上オ</td><td>1600m</td></tr><tr><td><span class="past-pos" style="border-color:#888888;color:#888888">11</span></td><td>2026/03/11</td><td>船橋ナ</td><td>ダイオライト記念JpnII</td><td>2400m</td></tr><tr><td><span class="past-pos" style="border-color:#888888;color:#888888">12</span></td><td>2026/02/17</td><td>大井</td><td>品川オープン４上特別</td><td>1800m</td></tr><tr><td><span class="past-pos" style="border-color:#888888;color:#888888">13</span></td><td>2026/01/28</td><td>大井</td><td>金盃４上オープン重賞</td><td>2600m</td></tr><tr><td><span class="past-pos" style="border-color:#888888;color:#888888">9</span></td><td>2026/01/14</td><td>大井</td><td>’２６ウインタースプリント４上</td><td>1200m</td></tr></tbody></table>
+        </div>
+      </div>      <div class="detail-card">
+        <div class="detail-header">
+          <span class="frame-badge" style="background:#FFFFFF;color:#222222;font-weight:bold;">1</span>
+          <span class="detail-no">1番</span>
+          <span class="mark detail-mark" style="color:#333333"></span>
+          <span class="detail-name">シャマル</span>
+          <span class="detail-score">スコア 12.3</span>
+        </div>
+        <div class="detail-body">
+          <div class="detail-info">
+            <span>性齢: 牡8</span>
+            <span>斤量: 2.2kg</span>
+            <span>騎手: 川須栄</span>
+            <span>調教師: 松下武</span>
+            <span>オッズ: 9.3倍 (4人気)</span>
+          </div>
+          <table class="past-table"><thead><tr><th>着順</th><th>日付</th><th>競馬場</th><th>レース名</th><th>距離</th></tr></thead><tbody><tr><td><span class="past-pos" style="border-color:#888888;color:#888888">10</span></td><td>2026/03/24</td><td>高知</td><td>黒船賞JpnIII</td><td>1400m</td></tr><tr><td><span class="past-pos" style="border-color:#888888;color:#888888">7</span></td><td>2026/02/23</td><td>名古屋</td><td>かきつばた記念JpnIII</td><td>1500m</td></tr><tr><td><span class="past-pos" style="border-color:#888888;color:#888888">9</span></td><td>2025/11/03</td><td>船橋ナ</td><td>ＪＢＣクラシックJpnＩ</td><td>1800m</td></tr><tr><td><span class="past-pos" style="border-color:#888888;color:#888888">6</span></td><td>2025/10/13</td><td>盛岡</td><td>マイルチャンピオンシップJpnＩ</td><td>1600m</td></tr><tr><td><span class="past-pos" style="border-color:#CC2200;color:#CC2200">1</span></td><td>2025/06/25</td><td>浦和</td><td>さきたま杯JpnＩ</td><td>1400m</td></tr></tbody></table>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <footer class="page-footer">
+    生成日時: 2026/05/05 09:18 ／ NAR地方交流重賞予想ツール（統計スコアリング）
+  </footer>
+</div>
+</body>
+</html>
